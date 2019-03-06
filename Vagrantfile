@@ -3,6 +3,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/xenial64"
   config.ssh.forward_x11 = true
   config.ssh.forward_agent = true
+  config.vm.provision "file", source: "./hive-site.xml", destination: "hive-site.xml"
 
   config.vm.provider "virtualbox" do |vb|
      vb.memory = "2048"
@@ -56,6 +57,15 @@ Vagrant.configure("2") do |config|
       pip install markdown
       pip install testresources
       pip install mrjob --ignore-installed six
+
+      # Setup schema for Hive
+      mkdir /var/warehouse
+      chmod -R 777 /var/warehouse
+      mv /home/vagrant/hive-site.xml /usr/lib/hive/apache-hive-2.3.4-bin/conf/
+      echo '\n\n export HADOOP_HOME="/usr/local/hadoop"'
+      echo 'if [ ! -d "/var/warehouse/metastore_db" ]; then' >> /home/vagrant/.bashrc
+      echo '  /usr/lib/hive/apache-hive-2.3.4-bin/bin/schematool -dbType derby -initSchema' >> /home/vagrant/.bashrc
+      echo 'fi' >> /home/vagrant/.bashrc
 
    SHELL
 
